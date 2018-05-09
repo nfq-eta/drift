@@ -1,8 +1,22 @@
 import throwIfMissing from './util/throwIfMissing';
 import { addClasses, removeClasses } from './util/dom';
 
+let __instance = (function () {
+  let instance;
+  return (newInstance) => {
+    if (newInstance) {
+      instance = newInstance;
+    }
+    return instance;
+  }
+}());
+
 export default class BoundingBox {
   constructor(options) {
+    if (__instance()) {
+      return __instance()
+    }
+
     this.isShowing = false;
 
     let {
@@ -16,6 +30,7 @@ export default class BoundingBox {
     this.openClasses = this._buildClasses('open');
 
     this._buildElement();
+    __instance(this);
   }
 
   _buildClasses(suffix) {
@@ -37,7 +52,7 @@ export default class BoundingBox {
   show(zoomPaneWidth, zoomPaneHeight) {
     this.isShowing = true;
 
-    this.settings.containerEl.appendChild(this.el);
+    document.querySelector('body').appendChild(this.el);
 
     let style = this.el.style;
     style.width = `${Math.round(zoomPaneWidth / this.settings.zoomFactor)}px`;
@@ -48,7 +63,7 @@ export default class BoundingBox {
 
   hide() {
     if (this.isShowing) {
-      this.settings.containerEl.removeChild(this.el);
+      document.querySelector('body').removeChild(this.el);
     }
 
     this.isShowing = false;
